@@ -3,13 +3,19 @@ $(() => {
     const CLICK_CAT = 'CLICK_CAT'
     const UPDATE_CHOSEN_ONE = 'UPDATE_CHOSEN_ONE'
 
+    const defaultCats = new Map()
+    defaultCats.set(1, {nome: 'Taco cat', urlFoto: 'https://i.ytimg.com/vi/tntOCGkgt98/maxresdefault.jpg', clicks: 0})
+    defaultCats.set(2, {nome: 'Burger cat', urlFoto: 'http://giveitlove.com/wp-content/uploads/600x401xBurger-Cat-Halloween-Costume.jpg.pagespeed.ic.L22zrezT2D.jpg', clicks: 0})
+    defaultCats.set(3, {nome: 'Long cat', urlFoto: 'http://i1.kym-cdn.com/photos/images/facebook/000/002/110/longcat.jpg', clicks: 0})
+    defaultCats.set(4, {nome: 'Ceiling cat', urlFoto: 'http://www.allmystery.de/i/t8cf3e2_ceilingcat.jpg', clicks: 0})
+
     const createStore = Redux.createStore;
     const store = createStore(catclicker);
 
     const $catTable = $('.cat-table')
     const $content = $('.content')
 
-    function catclicker(state = {chosenOne: undefined, cats: new Map()}, action){
+    function catclicker(state = {chosenOne: undefined, cats: defaultCats}, action){
         let newState = state
 
         switch (action.type) {
@@ -25,7 +31,7 @@ $(() => {
                 newState.chosenOne = action.catId
                 return newState
             default:
-                console.log(state)
+                return state
         }
     }
 
@@ -48,6 +54,11 @@ $(() => {
             type: UPDATE_CHOSEN_ONE,
             catId
         }
+    }
+
+    let currentState
+    function handleChanges(){
+        let previousState = currentState
     }
 
     store.subscribe(() => {
@@ -79,13 +90,17 @@ $(() => {
             let $catImage = $('<img>').attr('src', theChosenOne.urlFoto)
             $catImage.addClass('img-responsive').addClass('the-chosen-one')
             $catImage.attr('data-cat-id', state.chosenOne)
-            let $catInfo = $('<div>').html(`${theChosenOne.nome} - ${theChosenOne.clicks} clicks`)
+            let $catInfo = $('<div>').html(`<h2>${theChosenOne.nome} - ${theChosenOne.clicks} clicks</h2>`)
 
-            $catPage.append($catImage)
             $catPage.append($catInfo)
-
+            $catPage.append($catImage)
             $content.html($catPage)
         }
+    }
+
+    function limpaFormTabajara(){
+        $('#nomeGato').val('')
+        $('#urlGato').val('')
     }
 
     $('#cat-form').submit((event) => {
@@ -98,6 +113,7 @@ $(() => {
         }
 
         store.dispatch(addCat(cat))
+        limpaFormTabajara()
     })
 
     $catTable.on('click', '.list-cat', (event) => {
@@ -109,4 +125,6 @@ $(() => {
         let catId = $(event.target).data('cat-id')
         store.dispatch(clickCat(catId))
     })
+
+    buildCatList(store.getState())
 })
